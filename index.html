@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MYBの放送業界16タイプ診断</title>
+    <style>
+        :root { --type-color: #3498db; }
+        body { font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", sans-serif; line-height: 1.6; max-width: 680px; margin: 0 auto; padding: 20px; background: #f0f2f5; color: #333; transition: background 0.5s ease; }
+        .card { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); margin-bottom: 20px; position: relative; overflow: hidden; }
+        #start-area { text-align: center; padding: 50px 20px; }
+        .main-title { font-size: 2.2em; font-weight: 900; color: #2c3e50; margin-bottom: 10px; line-height: 1.2; }
+        .sub-title { font-size: 1em; color: #7f8c8d; margin-bottom: 30px; }
+        .btn-start { padding: 20px 60px; background: #2c3e50; color: white; border: none; border-radius: 50px; font-size: 1.2em; font-weight: bold; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .btn-start:hover { transform: scale(1.05); background: #34495e; }
+        #quiz-area { display: none; }
+        #progress-container { width: 100%; background: #eee; height: 10px; border-radius: 10px; margin-bottom: 10px; overflow: hidden; }
+        #progress-bar { width: 0%; background: var(--type-color); height: 100%; transition: width 0.3s ease; }
+        #progress-text { font-size: 0.85em; color: #999; text-align: right; margin-bottom: 20px; font-weight: bold; }
+        .question { font-size: 1.4em; margin-bottom: 30px; font-weight: bold; color: #2c3e50; min-height: 3.5em; }
+        .options button { display: block; width: 100%; margin: 15px 0; padding: 20px; cursor: pointer; border: 2px solid #eee; border-radius: 15px; background: #fff; font-size: 1.1em; transition: all 0.3s ease; text-align: left; font-weight: 500; }
+        .options button:hover { border-color: var(--type-color); background: #f8fbff; transform: translateY(-2px); }
+        #loading-area { display: none; text-align: center; padding: 60px 0; }
+        .spinner { width: 60px; height: 60px; border: 6px solid #f3f3f3; border-top: 6px solid var(--type-color); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        #result-area { display: none; text-align: center; animation: fadeInUp 0.8s ease forwards; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        .result-image-container { margin-bottom: 20px; text-align: center; }
+        #result-image { max-width: 100%; height: auto; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); display: none; }
+        .result-intro { font-weight: bold; color: #666; font-size: 1.1em; margin-bottom: 15px; }
+        .result-title { font-size: 1.8em; color: var(--type-color); font-weight: 900; margin: 5px 0 15px; line-height: 1.4; }
+        .result-code { font-size: 1em; color: #888; letter-spacing: 6px; font-weight: bold; margin-bottom: 20px; }
+        .result-description { font-size: 1em; color: #444; line-height: 1.8; padding: 25px; background: #f9f9f9; border-radius: 15px; text-align: left; border-left: 8px solid var(--type-color); margin-bottom: 20px; }
+        .strategy-box { background: #333; color: #fff; padding: 20px; border-radius: 15px; text-align: left; margin-bottom: 25px; font-size: 0.95em; position: relative; }
+        .strategy-box::before { content: "ADVICE"; position: absolute; top: -10px; left: 20px; background: var(--type-color); padding: 2px 10px; font-size: 0.7em; font-weight: bold; border-radius: 5px; }
+        .chart-container { background: #fff; padding: 20px; border-radius: 15px; border: 1px solid #eee; margin-bottom: 25px; }
+        .chart-row { display: grid; grid-template-columns: 40px 1fr 40px; align-items: center; gap: 10px; margin-bottom: 12px; }
+        .chart-label { font-weight: bold; font-size: 0.9em; }
+        .chart-bar-bg { background: #eee; height: 12px; border-radius: 6px; overflow: hidden; }
+        .chart-bar-fill { background: var(--type-color); height: 100%; transition: width 1s ease-out; }
+        .comp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
+        .comp-box { padding: 15px; border-radius: 12px; text-align: left; }
+        .comp-good { background: #eef9ff; border: 1px solid #3498db; }
+        .comp-bad { background: #fff5f5; border: 1px solid #e74c3c; }
+        .comp-label { font-weight: bold; font-size: 0.8em; margin-bottom: 5px; color: #555; }
+        .comp-target { font-weight: bold; font-size: 0.85em; color: #2c3e50; margin-bottom: 5px; line-height: 1.3; }
+        .btn-copy { display: inline-block; margin-bottom: 15px; font-size: 0.8em; color: var(--type-color); cursor: pointer; text-decoration: underline; border: none; background: none; }
+        .share-area { margin-top: 30px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+        .btn-share { padding: 12px 25px; border-radius: 50px; text-decoration: none; color: white; font-weight: bold; font-size: 0.9em; transition: 0.3s; display: flex; align-items: center; gap: 8px; }
+        .btn-x { background: #000; }
+        .btn-restart { padding: 12px 25px; background: #999; color: white; border: none; border-radius: 50px; cursor: pointer; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="card" id="start-area">
+    <div class="main-title">MYBの放送業界16タイプ</div>
+    <div class="sub-title">独断と偏見しかないのであしからず</div>
+    <button class="btn-start" onclick="startQuiz()">診断をはじめる</button>
+</div>
+
+<div class="card" id="quiz-area">
+    <div id="progress-container"><div id="progress-bar"></div></div>
+    <div id="progress-text">1 / 40</div>
+    <div class="question" id="question-text"></div>
+    <div class="options">
+        <button id="optA" onclick="answer('A')"></button>
+        <button id="optB" onclick="answer('B')"></button>
+    </div>
+</div>
+
+<div id="loading-area">
+    <div class="spinner"></div>
+    <h3>あなたのタイプを診断中...</h3>
+</div>
+
+<div class="card" id="result-area">
+    <div class="result-header">
+        <div class="result-intro">診断の結果、あなたのタイプは…</div>
+        <div class="result-image-container">
+            <img id="result-image" src="" alt="タイプ別イラスト">
+            <div style="font-size: 0.75em; color: #888; margin-top: 8px;">※イラストは随時更新中</div>
+        </div>
+        <div class="result-title" id="result-name"></div>
+        <div class="result-code" id="result-type"></div>
+    </div>
+    <button class="btn-copy" onclick="copyResult()">解説文をコピーする</button>
+    <div class="result-description" id="result-desc"></div>
+    <div class="strategy-box" id="result-strategy"></div>
+    <div class="chart-container">
+        <p style="text-align:left; font-weight:bold; font-size:0.9em; margin-bottom:15px; color:#666;">特性スコア分布</p>
+        <div class="chart-row"><span class="chart-label">E</span><div class="chart-bar-bg"><div id="bar-ei" class="chart-bar-fill"></div></div><span class="chart-label">S</span></div>
+        <div class="chart-row"><span class="chart-label">P</span><div class="chart-bar-bg"><div id="bar-sn" class="chart-bar-fill"></div></div><span class="chart-label">C</span></div>
+        <div class="chart-row"><span class="chart-label">M</span><div class="chart-bar-bg"><div id="bar-tf" class="chart-bar-fill"></div></div><span class="chart-label">O</span></div>
+        <div class="chart-row"><span class="chart-label">D</span><div class="chart-bar-bg"><div id="bar-jp" class="chart-bar-fill"></div></div><span class="chart-label">Z</span></div>
+    </div>
+    <div class="comp-grid">
+        <div class="comp-box comp-good"><div class="comp-label">◎ 相性がいい</div><div id="good-target" class="comp-target"></div><div id="good-comment" class="comp-comment"></div></div>
+        <div class="comp-box comp-bad"><div class="comp-label">△ 相性が悪い</div><div id="bad-target" class="comp-target"></div><div id="bad-comment" class="comp-comment"></div></div>
+    </div>
+    <div class="share-area">
+        <a id="share-x" href="#" target="_blank" class="btn-share btn-x">Xに投稿する</a>
+        <button class="btn-restart" onclick="location.reload()">もう一度やる</button>
+    </div>
+</div>
+
+<script>
+    const questions = [
+        { q: "仕事が忙しいとき、近いのは？", a: "大変だけどこの集中力たまらねえってなる", b: "早く終わらせたい", type: "SN" },
+        { q: "仕事を始める前にまずやるのは？", a: "全体の流れを確認", b: "とりあえず手を動かす", type: "JP" },
+        { q: "意見が割れたとき", a: "私はどっちでもない感を出す", b: "自分の意見をはっきり言う", type: "EI" },
+        { q: "仕事後に一番嬉しいのは", a: "感謝されたとき", b: "自分で良い出来だと思えたとき", type: "TF" },
+        { q: "企画を求められたとき", a: "面白くしたい", b: "及第点でいい", type: "SN" },
+        { q: "締切がある仕事", a: "逆算して進められる", b: "直前に一気にやったるで", type: "JP" },
+        { q: "頼まれごとをされたら", a: "断るのが苦手", b: "無理なら断る", type: "EI" },
+        { q: "評価されるなら", a: "周りの反応", b: "自分の満足度", type: "TF" },
+        { q: "トラブルが起きたとき", a: "ネタになるかも", b: "余計な仕事が増えた", type: "SN" },
+        { q: "ToDoリスト", a: "作る", b: "頭の中", type: "JP" },
+        { q: "人からどう思われているか", a: "気になるけど…気になるけど〜！", b: "気にならない", type: "EI" },
+        { q: "テストで結果が良いと思うのは", a: "校内平均だけど得点90点", b: "60点だけど校内10位", type: "TF" },
+        { q: "評価されたとき", a: "次はもっと面白くしたい", b: "あー終わったよかった", type: "SN" },
+        { q: "複数の仕事があるとき", a: "優先順位を決める", b: "気分で一気に", type: "JP" },
+        { q: "少数派の意見だったら", a: "周りに合わせる", b: "曲げない", type: "EI" },
+        { q: "褒められて嬉しいのは", a: "助かったと言われる", b: "クオリティを褒められる", type: "TF" },
+        { q: "マニュアル外の作業", a: "工夫できて楽しい", b: "できれば避けたい", type: "SN" },
+        { q: "作業中の自分", a: "進捗を確認する", b: "気づいたら没頭してる", type: "JP" },
+        { q: "人付き合いで疲れるのは", a: "気を使った笑顔", b: "自分の話ができない", type: "EI" },
+        { q: "時間をかけた仕事", a: "反応が良いと報われる", b: "納得できると報われる", type: "TF" },
+        { q: "仕事の雑談", a: "結構好き", b: "なくていい", type: "EI" },
+        { q: "準備と本番、得意なのは", a: "準備", b: "本番", type: "JP" },
+        { q: "評価を下げたくない？", a: "できれば下げたくない", b: "合う人だけでいい", type: "EI" },
+        { q: "誰にも見られなくても", a: "ちょっと物足りない", b: "普通に嬉しい", type: "EI" },
+        { q: "仕事を選ぶ基準", a: "面白そうか", b: "条件や安定", type: "SN" },
+        { q: "仕事が中断されたとき", a: "すぐ再開できる", b: "集中が切れて嫌", type: "JP" },
+        { q: "空気が微妙なとき", a: "何とか和ませる", b: "そのままにする", type: "EI" },
+        { q: "仕事後に振り返るのは", a: "周りの反応", b: "自分の判断", type: "TF" },
+        { q: "オフの日に仕事のアイデアが浮かぶと", a: "ちょっと楽しい", b: "今は忘れたい", type: "SN" },
+        { q: "仕事効率を上げるなら", a: "仕組みを整える", b: "集中環境を作る", type: "JP" },
+        { q: "集団での自分の役割", a: "空気を読む", b: "流れを気にしない", type: "EI" },
+        { q: "仕事で一番大事なのは", a: "誰かの役に立つ実感", b: "自分の表現・完成度", type: "TF" },
+        { q: "仕事とは自分にとって", a: "人生の一部", b: "生活のための手段", type: "SN" },
+        { q: "予定外の仕事が入ったら", a: "スケジュールを組み直す", b: "今やってることに集中", type: "JP" },
+        { q: "人からの評価", a: "なるべく下げたくない", b: "あまり気にしない", type: "EI" },
+        { q: "同じ成果ならどっち？", a: "みんなが喜ぶ", b: "自分的に100点", type: "TF" },
+        { q: "仕事終わりに声をかけられたら", a: "少し話す", b: "早く帰りたい", type: "EI" },
+        { q: "理想の働き方", a: "先が見えて安心", b: "一気に没頭", type: "JP" },
+        { q: "対人関係で大切なのは", a: "波風を立てない", b: "自分に正直", type: "EI" },
+        { q: "仕事のモチベーション源", a: "人の感情を揺さぶる", b: "自分の納得いくまで", type: "TF" }
+    ];
+
+    let currentIdx = 0;
+    let scores = { E: 0, S: 0, P: 0, C: 0, O: 0, M: 0, D: 0, Z: 0 };
+
+    function startQuiz() {
+        document.getElementById("start-area").style.display = "none";
+        document.getElementById("quiz-area").style.display = "block";
+        showQuestion();
+    }
+
+    function answer(choice) {
+        const q = questions[currentIdx];
+        if (q.type === "EI") choice === 'A' ? scores.E++ : scores.S++;
+        if (q.type === "SN") choice === 'A' ? scores.C++ : scores.P++;
+        if (q.type === "TF") choice === 'A' ? scores.M++ : scores.O++;
+        if (q.type === "JP") choice === 'A' ? scores.D++ : scores.Z++;
+        currentIdx++;
+        updateUI();
+        if (currentIdx < questions.length) showQuestion();
+        else processResults();
+    }
+
+    function updateUI() {
+        const percent = (currentIdx / questions.length) * 100;
+        document.getElementById("progress-bar").style.width = percent + "%";
+        document.getElementById("progress-text").innerText = `${currentIdx} / ${questions.length}`;
+    }
+
+    function showQuestion() {
+        const q = questions[currentIdx];
+        document.getElementById("question-text").innerText = q.q;
+        document.getElementById("optA").innerText = q.a;
+        document.getElementById("optB").innerText = q.b;
+    }
+
+    function processResults() {
+        document.getElementById("quiz-area").style.display = "none";
+        document.getElementById("loading-area").style.display = "block";
+        setTimeout(showResult, 2200);
+    }
+
+    function showResult() {
+        document.getElementById("loading-area").style.display = "none";
+        document.getElementById("result-area").style.display = "block";
+        const type = (scores.E >= scores.S ? "E" : "S") + (scores.P >= scores.C ? "P" : "C") + (scores.O >= scores.M ? "O" : "M") + (scores.D >= scores.Z ? "D" : "Z");
+        
+        const calcBar = (a, b) => (a / (a + b || 1)) * 100;
+        document.getElementById("bar-ei").style.width = calcBar(scores.E, scores.S) + "%";
+        document.getElementById("bar-sn").style.width = calcBar(scores.P, scores.C) + "%";
+        document.getElementById("bar-tf").style.width = calcBar(scores.M, scores.O) + "%";
+        document.getElementById("bar-jp").style.width = calcBar(scores.D, scores.Z) + "%";
+
+        const titles = {
+            "EPOD": "態度風見鶏AD", "EPOZ": "夢見るAD", "EPMD": "理想追求リーディングAP", "EPMZ": "設計図ディレクター",
+            "ECOD": "金髪声高P", "ECOZ": "クリエイティブ機関車AD", "ECMD": "自由人エンターテイナープロデューサー", "ECMZ": "癖つよ困らせD",
+            "SPOD": "安定型サポータープロデューサー", "SPOZ": "静かなるAD", "SPMD": "合理派お局AP", "SPMZ": "完全主義拗らせAD",
+            "SCOD": "優しさから周りプロデューサー", "SCOZ": "７のことは７できますが１２はしませんディレクター", "SCMD": "雰囲気しごでき怪しめプロデューサー", "SCMZ": "オンマイウェイプロフェッショナル"
+        };
+
+        const resultImg = document.getElementById("result-image");
+        resultImg.src = `asset/${type}.png`; 
+        resultImg.style.display = "inline-block";
+
+        const descriptions = {
+            "EPOD": "現場の空気を読む天才という名の<b>孤独</b>。周りの会話や仕事内容が気になりすぎて、人の悪いところや嫌なところばかりみてしまう。衝突を避けるための<b>火消し役</b>としては優秀ですが、板挟みになると「イライラしつつも現場を動かす、誰に認めらたいのかわからない悲しきマシーンです。",
+            "EPOZ": "口を開けば「これおもろいか？」と言う<b>理想主義者</b>。人当たりもよいですが、作業に入るとテロップのフォント選びで数時間を溶かす<b>効率キラー</b>。横に優秀な管理人がいないと、納期をブチ抜いて笑顔で謝罪する「愛すべき無能」に成り下がります。",
+            "EPMD": "自分の好きなものにこだわりが強く、仕事の仕方も絶対に曲げない<b>情熱家</b>。周囲の反応も気にしつつ、最終的には「私はこれが」とゴリ押しする<b>現場クラッシャー</b>な一面も。ロジックよりも自分の正義を重視するため、周りは疲弊しますが、責任感も強く、ロケ現場で助けてくれる頼り甲斐ある一面もあります。",
+            "EPMZ": "自分と演者には甘いと思われがちなわがままタイプ。しっかり仕事もできるので、あまり文句が言えず、周りのヘイトを溜めがち。仲良くなった人にはとことん優しいのでヤンキー気質なところもあるかも？意外と繊細で可愛らしい一面もあるので、高圧的な態度はその裏返しかな",
+            "ECOD": "圧倒的な社交性とノリだけで場を回す、チームの<b>太陽</b>。トラブルすらも「演出」と変換できる<b>ポジティブモンスター</b>。実務的な細かいことは丸投げする「丸投げの天才」でもあり、彼が笑っている裏で誰かが泣いていることにあまり気づきません。",
+            "ECOZ": "「やるからには楽しくなきゃ意味がない」がモットーの<b>自由人</b>。よくリモートをしたがる。大抵何でもできるので頼られがちですが、自分の知らないうちにキャパオーバーしてしまう器用貧乏。細かい数字や予算管理には一切興味がない。彼についていけば楽しいですが、気づいたら両方沈没しているリスクも抱えています",
+            "ECMD": "社交性抜群、上司、後輩からも話しやすい存在として頼られるみんな大好きハンバーグみたいな人。飲みや大勢でのアクティビティも大好き。聞きづらいこともしっかり確認できるコミュ力で滞りがあまり起こらず、優秀なプロデューサーになれそう。自分と話してくれない相手の意見は聞けていない傾向があるので注意。",
+            "ECMZ": "自分の感性とクオリティのためなら平気で徹夜する<b>癖つよクリエイター</b>。周囲との調和を捨てた<b>完成度オタク</b>ともいえる。撮影当日に突然「やっぱり全部変える」と言い出す、現場スタッフにとっての「最凶の時限爆弾」です。",
+            "SPOD": "派手さはないが、圧倒的な安定感で番組を下支えする<b>守護神</b>。誰かの役に立つことに喜びを感じる<b>お人好し</b>。無茶な要求にも応えようとして、自分を犠牲にしすぎて突然キャパオーバーで失踪するリスクを秘めた、危うい聖人君子です。",
+            "SPOZ": "感情を殺し、裏で淡々と仕事を仕上げる<b>職人AD</b>。指示以上のクオリティを出しますが、自分からは一切喋らない<b>真の有能</b>。無駄を極端に嫌い、誰も気づかないミスを黙って直していますが、評価されなさすぎていつの間にかやる気がなくなってきます。",
+            "SPMD": "「その演出、尺に収まります？」と問いかける<b>合理主義者</b>。無駄な会議を憎む<b>お局AP</b>。ミスにも厳しい。ドライに見えますが、状況に惑わされない助けてくれる時は助けてくれる「隠れ優聖人」。ただし、彼女が「NO」と言った人物は、二度と日の目を見ることはありません。",
+            "SPMZ": "「仕事は完璧にやらなあかん」と自分にも他人にも厳しい<b>完全主義者</b>。妥協を許さないため成果はピカイチですが、周囲へのプレッシャーもピカイチな<b>拗らせAD</b>。想定外の事態が起きると、瞳の奥で人を殺しています。案の定疲れるので、やる気の浮き沈みが激しい",
+            "SCOD": "現場の調和を何よりも大切にする<b>チームのお父さん</b>。スタッフの不満を察知してケアに回る<b>尻敷かれ担当</b>。しかし、指示が優しすぎて曖昧になりがちな「決断力不足」が最大の弱点。彼が迷っている間に、現場の予算はどんどん溶けていきます。",
+            "SCOZ": "要求されたタスクは無難にこなすが、それ以上のサービス残業はあまりやりたくない<b>フリーディレクタータイプ</b>。あまり個性を挟まず機械的に仕事を終わらせる<b>量産職人</b>。報酬への情熱だけは誰にも負けません。",
+            "SCMD": "群れを嫌い、謎めいた雰囲気を纏った<b>単独行動派</b>。滞っていた問題をサラッと解決して去る<b>影の功労者</b>な一面も。コミュニケーション能力に難があり、何を考えているか不明な「怪しめプロデューサー」。怒ると怖いと思われがち",
+            "SCMZ": "周囲の評価や流行りには一切興味がない<b>オンマイウェイ</b>。自分の中の「正解」を信じる<b>プロフェッショナル</b>。妥協を許さず、納得がいかないシーンは何度でも撮り直すため、現場は地獄と化しますが、完成品だけは芸術的です。"
+        };
+        const strategies = {
+            "EPOD": "【アドバイス】顔色を伺うのは一流なぶん、苦労が絶えないはず。ただその苦労は、勝手に自分が感じているだけかもよ",
+            "EPOZ": "【アドバイス】センスはある。頼むから今のタスクを見ろ。",
+            "EPMD": "【アドバイス】自分だけ笑ってることない？大丈夫？",
+            "EPMZ": "【アドバイス】気が付いていても直そうとしていないことあるんじゃない？",
+            "ECOD": "【アドバイス】愛嬌で許されるのは30代まで。実務の基礎を今のうちに固めろ。",
+            "ECOZ": "【アドバイス】集中力は化け物級。だが、報連相を忘れると次からは誰も協力してくれなくなる。",
+            "ECMD": "【アドバイス】ノリは最高。数字やデータ、もう少し客観的な要素も考慮しよう",
+            "ECMZ": "【アドバイス】才能はある。だが周囲は疲弊しきっている。たまには「ありがとう」と言ってみよう。",
+            "SPOD": "【アドバイス】あなたは業界の宝だ。だが、断る勇気を持て。抱え込みすぎて消えるのが一番の損失だ。",
+            "SPOZ": "【アドバイス】有能さはバレている。だが、少しは自分の希望を口に出さないと、美味しいところを陽キャに持っていかれるぞ。",
+            "SPMD": "【アドバイス】その正論は正しい。だが、正しいだけでは人は動かない。たまにはにっこり笑顔してごらん。",
+            "SPMZ": "【アドバイス】100点を目指すのは素晴らしい。だが、業界は60点でも「今すぐ出す」ことが正義の時もある。",
+            "SCOD": "【アドバイス】優しさは武器。だが「決める」ことから逃げるな。リーダーの迷いは現場の最大のストレスだ。",
+            "SCOZ": "【アドバイス】そのドライさは生存に有利。だが、あと5分だけ寄り添うフリをするだけで、評価が劇的に変わる。",
+            "SCMD": "【アドバイス】ミステリアスな実力者。だが、もう少し情報を共有しろ。周囲は怖がっている。",
+            "SCMZ": "【アドバイス】芸術性は高い。だが番組は必ずしも誰かの芸術作品ではない"
+        };
+        const themeColors = { "E": "#FF4B2B", "S": "#2575fc", "P": "#f6d365", "C": "#4facfe", "O": "#6a11cb", "M": "#fa709a", "D": "#43e97b", "Z": "#777" };
+        document.documentElement.style.setProperty('--type-color', themeColors[type[0]]);
+        document.getElementById("result-name").innerText = titles[type];
+        document.getElementById("result-type").innerText = type;
+        document.getElementById("result-desc").innerHTML = descriptions[type];
+        document.getElementById("result-strategy").innerText = strategies[type];
+        const compData = {
+            "EPOD": { g: titles["SPMZ"], gc: "職人をうまく包む", b: titles["ECMD"], bc: "収拾つかない" },
+            "EPOZ": { g: titles["EPMD"], gc: "理想と現実の橋渡し", b: titles["ECMZ"], bc: "放置しないと爆発" },
+            "EPMD": { g: titles["EPOD"], gc: "周囲を整えてくれる", b: titles["SPMD"], bc: "理想 vs 数字で衝突" },
+            "EPMZ": { g: titles["SCOZ"], gc: "設計×実行で最強", b: titles["ECOD"], bc: "感覚論に疲れる" },
+            "ECOD": { g: titles["SPOD"], gc: "ノリを現実に戻す", b: titles["SPMZ"], bc: "温度差で疲弊" },
+            "ECOZ": { g: titles["EPMZ"], gc: "アイデアを形にする", b: titles["SPMD"], bc: "効率重視に潰される" },
+            "ECMD": { g: titles["EPOZ"], gc: "暴走をコントロール", b: titles["SPMZ"], bc: "真逆すぎる" },
+            "ECMZ": { g: titles["SPOZ"], gc: "理想を黙って形に", b: titles["EPOZ"], bc: "管理されると死ぬ" },
+            "SPOD": { g: titles["EPMD"], gc: "安定供給で支える", b: titles["SCMD"], bc: "会話がなさすぎる" },
+            "SPOZ": { g: titles["ECMZ"], gc: "作業分担が明確", b: titles["ECMD"], bc: "ペース乱される" },
+            "SPMD": { g: titles["EPOZ"], gc: "感情面を補完", b: titles["EPMD"], bc: "正論同士で折れない" },
+            "SPMZ": { g: titles["EPOD"], gc: "周囲が柔らかいと楽", b: titles["ECMD"], bc: "理解不能" },
+            "SCOD": { g: titles["EPMD"], gc: "指示が明確だと強い", b: titles["ECMZ"], bc: "無茶振りが過ぎる" },
+            "SCOZ": { g: titles["EPMZ"], gc: "指示さえあれば最強", b: titles["ECOD"], bc: "雑談が多い" },
+            "SCMD": { g: titles["SPMD"], gc: "無駄がなく静か", b: titles["SPOD"], bc: "ケアが重い" },
+            "SCMZ": { g: titles["EPOD"], gc: "外界との通訳", b: titles["ECOD"], bc: "テンションが違う" }
+        };
+        const c = compData[type];
+        document.getElementById("good-target").innerText = c.g;
+        document.getElementById("good-comment").innerText = "👉 " + c.gc;
+        document.getElementById("bad-target").innerText = c.b;
+        document.getElementById("bad-comment").innerText = "👉 " + c.bc;
+        const shareText = encodeURIComponent(`私の放送業界タイプは【${titles[type]}】でした！\n#放送業界16タイプ診断 #MYB診断`);
+        document.getElementById("share-x").href = `https://twitter.com/intent/tweet?text=${shareText}`;
+    }
+
+    function copyResult() {
+        const title = document.getElementById("result-name").innerText;
+        const desc = document.getElementById("result-desc").innerText;
+        const strat = document.getElementById("result-strategy").innerText;
+        const text = `【放送業界16タイプ診断】\n診断結果：${title}\n\n${desc}\n\n${strat}`;
+        navigator.clipboard.writeText(text).then(() => alert("解説文をコピーしました！"));
+    }
+</script>
+
+</body>
+</html>
